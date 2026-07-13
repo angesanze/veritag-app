@@ -1,0 +1,105 @@
+# CI/CD for veritag-app: curator web portal + Android APK.
+#
+# The SDK lives in its own repo (angesanze/veritag-sdk) and is checked out into
+# ./sdk (gitignored) — the same convention used for local development. If the
+# SDK repo is private, add a PAT with repo-read as the SDK_READ_TOKEN secret;
+# for a public SDK repo the default token is enough.
+#
+# Every push/PR builds both apps and uploads artifacts. Pushing a v* tag also
+# publishes a GitHub Release with the APK and the web bundle attached.
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+env:
+  FLUTTER_VERSION: "3.38.5"
+
+jobs:
+  web:
+    name: Web portal (typecheck + build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout SDK into ./sdk
+        uses: actions/checkout@v4
+        with:
+          repository: angesanze/veritag-sdk
+          path: sdk
+          token: ${{ secrets.SDK_READ_TOKEN != '' && secrets.SDK_READ_TOKEN || github.token }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build SDK (TS)
+        run: cd sdk/ts/dna424-client && npm install --no-audit --no-fund && npm run build
+      - name: Typecheck + test + build portal
+        run: |
+          cd web-portal
+          npm install --no-audit --no-fund
+          npm run typecheck
+          npm test
+          npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-portal
+          path: web-portal/dist-web
+
+  android:
+    name: Android APK (analyze + test + build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout SDK into ./sdk
+        uses: actions/checkout@v4
+        with:
+          repository: angesanze/veritag-sdk
+          path: sdk
+          token: ${{ secrets.SDK_READ_TOKEN != '' && secrets.SDK_READ_TOKEN || github.token }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Analyze + test
+        run: |
+          cd mobile-app
+          flutter pub get
+          flutter analyze
+          flutter test
+      - name: Build release APK
+        run: cd mobile-app && flutter build apk --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: veritag-apk
+          path: mobile-app/build/app/outputs/flutter-apk/app-release.apk
+
+  release:
+    name: GitHub Release (on v* tag)
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [web, android]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: veritag-apk
+          path: out
+      - uses: actions/download-artifact@v4
+        with:
+          name: web-portal
+          path: out/web
+      - name: Zip web bundle
+        run: cd out && zip -r web-portal.zip web
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            out/app-release.apk
+            out/web-portal.zip

@@ -1,0 +1,20 @@
+# The SDK checkout convention: clone angesanze/veritag-sdk here (CI does it too).
+/sdk/
+
+# Node
+node_modules/
+dist/
+dist-web/
+package-lock.json
+
+# Flutter / Dart
+.dart_tool/
+build/
+pubspec.lock
+.flutter-plugins
+.flutter-plugins-dependencies
+local.properties
+.gradle/
+
+# misc
+.DS_Store

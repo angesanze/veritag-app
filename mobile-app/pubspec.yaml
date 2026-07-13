@@ -1,0 +1,27 @@
+name: arttrust_mobile
+description: Reference ArtTrust mobile app (Piano C) on the dna424_client SDK.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  dna424_client:
+    path: ../sdk/dart/dna424_client
+  crypto: ^3.0.3
+  convert: ^3.1.1
+  http: ^1.1.0
+  shared_preferences: ^2.2.0   # remember the artist identity across launches
+  image_picker: ^1.1.0         # attach a photo to an artwork at mint time
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
