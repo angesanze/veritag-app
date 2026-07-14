@@ -21,7 +21,7 @@ git clone git@github.com:angesanze/veritag-sdk.git sdk
 
 ```bash
 # web portal (needs Node 20)
-cd sdk/ts/dna424-client && npm install && npm run build
+cd sdk/ts/veritag-sdk && npm install && npm run build
 cd ../../../web-portal && npm install && npm run dev        # → :5173
 
 # mobile app (needs Flutter 3.38.x + Android SDK)
@@ -29,8 +29,8 @@ cd mobile-app
 flutter pub get && flutter run                              # or: flutter build apk --release
 ```
 
-Backend (AttestCore + domain API): lives in the ArtTrust 2.0 monorepo for now —
-`docker compose up` there, then point the apps at `http://<LAN-IP>:8090`.
+Backend (AttestCore + domain API): [`veritag-core`](https://github.com/angesanze/veritag-core)
+— `docker compose up` there for local dev, or use the cloud endpoints (the app's default).
 
 ## CI/CD
 

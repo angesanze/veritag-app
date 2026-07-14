@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.arttrust_mobile"
+    namespace = "com.veritag.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.arttrust_mobile"
+        applicationId = "com.veritag.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         // flutter_nfc_kit requires API 26 (Android 8.0). NTAG 424 DNA / SDM needs a

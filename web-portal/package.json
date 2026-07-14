@@ -1,9 +1,9 @@
 {
-  "name": "@arttrust/web-portal",
+  "name": "@veritag/web-portal",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "ArtTrust curator portal — a React app on the @dna424/client SDK.",
+  "description": "Veritag curator portal — a React app on the @veritag/sdk SDK.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -12,7 +12,7 @@
     "test": "tsc -p tsconfig.json && node --test test/*.test.mjs"
   },
   "dependencies": {
-    "@dna424/client": "file:../sdk/ts/dna424-client",
+    "@veritag/sdk": "file:../sdk/ts/veritag-sdk",
     "leaflet": "^1.9.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

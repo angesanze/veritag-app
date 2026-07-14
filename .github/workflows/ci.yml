@@ -34,7 +34,7 @@ jobs:
         with:
           node-version: 20
       - name: Build SDK (TS)
-        run: cd sdk/ts/dna424-client && npm install --no-audit --no-fund && npm run build
+        run: cd sdk/ts/veritag-sdk && npm install --no-audit --no-fund && npm run build
       - name: Typecheck + test + build portal
         run: |
           cd web-portal

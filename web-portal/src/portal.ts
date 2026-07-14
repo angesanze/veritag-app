@@ -2,16 +2,16 @@
  * Curator portal logic.
  *
  * Two layers:
- *  - the ArtTrust DOMAIN client (`ArtTrustApi`) — the curator's real work:
+ *  - the Veritag DOMAIN client (`VeritagApi`) — the curator's real work:
  *    confirm an artist's blue check, see the roster, assemble virtual rooms,
- *    read the same passport a visitor sees. Talks to arttrust-api (Piano C).
- *  - the binding helpers (`arttrustBinding`, `verdictOf`) — kept byte-identical
+ *    read the same passport a visitor sees. Talks to the Veritag domain API.
+ *  - the binding helpers (`veritagBinding`, `verdictOf`) — kept byte-identical
  *    to the Python backend + Flutter app and pinned by test/portal.test.mjs.
  *
  * No private key is ever created or held here — the curator oversees, the artist
  * signs on their device.
  */
-import { type VerifyResult } from "@dna424/client";
+import { type VerifyResult } from "@veritag/sdk";
 
 export type Verdict = "authentic" | "counterfeit" | "replayed" | "unverified_artist";
 
@@ -23,14 +23,14 @@ export function verdictOf(v: VerifyResult): Verdict {
   return "authentic";
 }
 
-const SEP = 0x1f; // unit separator — must match consumers/arttrust/binding.py
+const SEP = 0x1f; // unit separator — must match veritag-core arttrust/binding.py
 
 /**
- * The ArtTrust domain binding: SHA-256(uid ‖ 0x1f ‖ title ‖ 0x1f ‖ artist_id).
+ * the Veritag domain binding: SHA-256(uid ‖ 0x1f ‖ title ‖ 0x1f ‖ artist_id).
  * Built by ARTISTS (not the curator); kept here byte-identical to the Python
  * backend and the Flutter app and pinned by test/portal.test.mjs.
  */
-export async function arttrustBinding(
+export async function veritagBinding(
   uid: string,
   title: string,
   artistId: string,
@@ -166,9 +166,9 @@ export interface CuratorAuth {
   token: string;
 }
 
-/** Thin fetch client over arttrust-api (Piano C). Carries the curator session
+/** Thin fetch client over the Veritag domain API. Carries the curator session
  *  token (when set) so the guarded endpoints authenticate transparently. */
-export class ArtTrustApi {
+export class VeritagApi {
   constructor(private readonly base: string, private token?: string) {}
 
   setToken(token?: string) {
@@ -191,8 +191,9 @@ export class ArtTrustApi {
     return (r.status === 204 ? undefined : await r.json()) as T;
   }
 
-  health(): Promise<{ status: string; attest?: string }> {
-    return this.j("/healthz");
+  health(): Promise<{ status: string; attest_url?: string }> {
+    // /meta, not /healthz: Google's frontend swallows /healthz on *.run.app.
+    return this.j("/meta");
   }
 
   // -- auth --

@@ -1,16 +1,16 @@
-/// Dart client for arttrust-api (Piano C) — the domain backend the app talks to.
+/// Dart client for the Veritag domain API (Piano C) — the domain backend the app talks to.
 ///
 /// The artist flows (enrol, find a curator, request the blue check, mint) and the
 /// visitor passport all go through here. Crypto stays in the SDK: keys are made
 /// and signing happens on-device (IdentityService); this only carries domain JSON.
-library arttrust_api;
+library api_client;
 
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-class ArtTrustApiError implements Exception {
-  ArtTrustApiError(this.status, this.detail);
+class VeritagApiError implements Exception {
+  VeritagApiError(this.status, this.detail);
   final int status;
   final String detail;
   @override
@@ -145,8 +145,8 @@ class Passport {
   }
 }
 
-class ArtTrustApi {
-  ArtTrustApi(this.baseUrl, {http.Client? client}) : _http = client ?? http.Client();
+class VeritagApi {
+  VeritagApi(this.baseUrl, {http.Client? client}) : _http = client ?? http.Client();
   final String baseUrl;
   final http.Client _http;
 
@@ -158,7 +158,7 @@ class ArtTrustApi {
       try {
         detail = (jsonDecode(r.body) as Map<String, dynamic>)['detail'] as String? ?? detail;
       } catch (_) {}
-      throw ArtTrustApiError(r.statusCode, detail);
+      throw VeritagApiError(r.statusCode, detail);
     }
     return r.body.isEmpty ? null : jsonDecode(r.body);
   }

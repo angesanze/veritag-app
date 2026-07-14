@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:dna424_client/dna424_client.dart';
+import 'package:veritag_sdk/veritag_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'arttrust_api.dart';
-import 'arttrust_mobile.dart' show arttrustBinding;
+import 'api_client.dart';
+import 'binding.dart';
 
-void main() => runApp(const ArtTrustApp());
+void main() => runApp(const VeritagApp());
 
 // ── palette ────────────────────────────────────────────────────────────────
 const _bg = Color(0xFF08070D);
@@ -39,7 +39,7 @@ enum NfcPhase { idle, searching, working }
 TextStyle _serif(double size, [FontWeight w = FontWeight.w700, Color c = _ink]) =>
     TextStyle(fontFamily: 'serif', fontSize: size, fontWeight: w, color: c, letterSpacing: -0.3, height: 1.15);
 
-String _msg(Object e) => e is ArtTrustApiError ? e.detail : e.toString().replaceFirst('Exception: ', '');
+String _msg(Object e) => e is VeritagApiError ? e.detail : e.toString().replaceFirst('Exception: ', '');
 String _initials(String n) => n.trim().split(RegExp(r'\s+')).take(2).map((w) => w.isEmpty ? '' : w[0]).join().toUpperCase();
 
 ArtistProfile _cachedProfile(String id, String name) => ArtistProfile(id, name, '', false, const <Curator>[]);
@@ -48,8 +48,8 @@ BoxDecoration _pageGradient() => const BoxDecoration(
       gradient: RadialGradient(center: Alignment(0.95, -0.95), radius: 1.4, colors: [Color(0x3329203F), _bg], stops: [0.0, 0.62]),
     );
 
-class ArtTrustApp extends StatelessWidget {
-  const ArtTrustApp({super.key});
+class VeritagApp extends StatelessWidget {
+  const VeritagApp({super.key});
   @override
   Widget build(BuildContext context) {
     final scheme = ColorScheme.fromSeed(seedColor: _violet, brightness: Brightness.dark).copyWith(surface: _bg, primary: _violet);
@@ -57,7 +57,7 @@ class ArtTrustApp extends StatelessWidget {
         OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: c, width: w));
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'ArtTrust',
+      title: 'Veritag',
       theme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.dark,
@@ -102,13 +102,13 @@ class _HomePageState extends State<HomePage> {
   String _nfcStatus = '';
   bool _nfcCancelled = false;
 
-  ArtTrustApi _api() => ArtTrustApi(_base.trim());
+  VeritagApi _api() => VeritagApi(_base.trim());
   Timer? _timer;
 
   /// Channel to MainActivity: tags tapped OUTSIDE an in-app scan land here
   /// (Android dispatches our external-type NDEF record to the app, never to a
   /// browser — the record is data, not a link).
-  static const _nfcIntents = MethodChannel('arttrust/nfc');
+  static const _nfcIntents = MethodChannel('veritag/nfc');
 
   @override
   void initState() {
@@ -199,7 +199,7 @@ class _HomePageState extends State<HomePage> {
     if (_nfc == NfcPhase.searching) { _nfcCancelled = true; _provisioner.cancel(); return; }
     if (_nfc == NfcPhase.working) return;
     setState(() { _error = null; _notice = null; _nfc = NfcPhase.searching; _nfcStatus = ''; _nfcCancelled = false; });
-    // One tap session: prove the chip is a 424 DNA, read its ArtTrust record
+    // One tap session: prove the chip is a 424 DNA, read its Veritag record
     // (SDM mirrors fresh u/c/m), hold the session until the phone is lifted so
     // the OS never re-dispatches the tag. The HTTP lookup happens afterwards.
     try {
@@ -232,7 +232,7 @@ class _HomePageState extends State<HomePage> {
       HapticFeedback.heavyImpact();
       // A genuine 424 DNA that simply isn't in the registry yet is not an
       // error — it's a blank canvas. Tell that story calmly, not in red.
-      if (e is ArtTrustApiError && e.status == 404) {
+      if (e is VeritagApiError && e.status == 404) {
         setState(() => _notice =
             'This tag is genuine but still blank — no artwork has been bound to it yet. An artist can sign it from the Studio.');
       } else {
@@ -298,7 +298,7 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 26),
               Center(child: Text('Every artwork\ntells the truth.', textAlign: TextAlign.center, style: _serif(30))),
               const SizedBox(height: 8),
-              const Center(child: Text('Tap an ArtTrust tag to read its passport.', style: TextStyle(color: _muted, fontSize: 14))),
+              const Center(child: Text('Tap a Veritag tag to read its passport.', style: TextStyle(color: _muted, fontSize: 14))),
               const SizedBox(height: 30),
               Center(child: _NfcScanner(label: 'Hold near an artwork', sublabel: 'no sign-up needed', color: _gold, phase: _nfc, status: _nfcStatus, onTap: _scan)),
               const SizedBox(height: 24),
@@ -328,7 +328,7 @@ class _HomePageState extends State<HomePage> {
             child: const Text('A', style: TextStyle(color: _bg, fontWeight: FontWeight.w800, fontSize: 20, fontFamily: 'serif')),
           ),
           const SizedBox(width: 11),
-          Text('ArtTrust', style: _serif(23)),
+          Text('Veritag', style: _serif(23)),
           const Spacer(),
           AnimatedContainer(
             duration: const Duration(milliseconds: 300), width: 8, height: 8,
@@ -402,7 +402,7 @@ class _HomePageState extends State<HomePage> {
 // ── onboarding (first run only, pushed) ─────────────────────────────────────
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key, required this.api, required this.identity});
-  final ArtTrustApi Function() api;
+  final VeritagApi Function() api;
   final IdentityService identity;
   @override
   State<OnboardingPage> createState() => _OnboardingPageState();
@@ -508,7 +508,7 @@ class StudioPage extends StatefulWidget {
     super.key, required this.api, required this.identity, required this.provisioner,
     required this.base, required this.artist, required this.onArtistChanged,
   });
-  final ArtTrustApi Function() api;
+  final VeritagApi Function() api;
   final IdentityService identity;
   final TagProvisioner provisioner;
   final String base;
@@ -590,7 +590,7 @@ class _StudioPageState extends State<StudioPage> {
     if (_nfc == NfcPhase.searching) { _nfcCancelled = true; widget.provisioner.cancel(); return; }
     if (_nfc == NfcPhase.working) return;
     // ONE tap session, narrated by the scanner ring itself: prove 424 DNA
-    // silicon → mint on the server (tag held) → write the ArtTrust data record
+    // silicon → mint on the server (tag held) → write the Veritag data record
     // → enable SDM over EV2 → hold the session until the phone is lifted. If
     // provisioning dies mid-way the mint is kept and the next tap on the SAME
     // tag resumes at the chip-write, without re-minting.
@@ -605,7 +605,7 @@ class _StudioPageState extends State<StudioPage> {
       final m = await widget.provisioner.withArtTag((s) async {
         var mint = _pendingMint;
         if (mint == null || mint.uid != s.uid) {
-          final binding = arttrustBinding(s.uid, title, _artist.artistId);
+          final binding = veritagBinding(s.uid, title, _artist.artistId);
           final sig = await widget.identity.signBinding(binding);
           if (sig == null) throw StateError('signing failed');
           status('Registering the artwork…');
@@ -715,7 +715,7 @@ class _StudioPageState extends State<StudioPage> {
                     Expanded(child: Text('Signed · tag ${_short(m.uid)}', style: _serif(15.5))),
                   ]),
                   const SizedBox(height: 4),
-                  const Text('The chip now carries a secured ArtTrust record and mirrors a fresh cryptographic proof on every tap — it is data, not a link: no browser will ever open from it.',
+                  const Text('The chip now carries a secured Veritag record and mirrors a fresh cryptographic proof on every tap — it is data, not a link: no browser will ever open from it.',
                       style: TextStyle(color: _muted, fontSize: 12.5, height: 1.4)),
                   const SizedBox(height: 14),
                   _QuietButton(label: 'Preview the passport', busy: _busy == 'preview', onTap: _previewTap),
@@ -773,7 +773,7 @@ class _StudioPageState extends State<StudioPage> {
 // ── verification panel (onboarding + settings) ──────────────────────────────
 class VerificationPanel extends StatefulWidget {
   const VerificationPanel({super.key, required this.api, required this.profile, required this.onVerified});
-  final ArtTrustApi Function() api;
+  final VeritagApi Function() api;
   final ArtistProfile profile;
   final void Function(ArtistProfile) onVerified;
   @override
@@ -1235,7 +1235,7 @@ class _SettingsSheet extends StatefulWidget {
   final bool? online;
   final TagProvisioner provisioner;
   final void Function(String) onChanged;
-  final ArtTrustApi Function()? api;
+  final VeritagApi Function()? api;
   final ArtistProfile? artist;
   final void Function(ArtistProfile)? onArtistChanged;
   final VoidCallback? onReset;
@@ -1286,7 +1286,7 @@ class _SettingsSheetState extends State<_SettingsSheet> {
         Text('Settings', style: _serif(22)),
         const SizedBox(height: 20),
 
-        const _Label('ArtTrust endpoint'),
+        const _Label('Veritag endpoint'),
         const SizedBox(height: 8),
         TextField(controller: _c, onChanged: widget.onChanged),
         const SizedBox(height: 14),

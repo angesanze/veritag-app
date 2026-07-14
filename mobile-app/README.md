@@ -1,4 +1,4 @@
-# ArtTrust mobile app — Flutter app on `dna424_client`
+# Veritag mobile app — Flutter app on `veritag_sdk`
 
 A real, designed Flutter app (gallery-dark theme) to see and test the ecosystem
 on a phone. Two views:
@@ -31,8 +31,8 @@ flutter test           # widget smoke + binding conformance
 - `lib/arttrust_mobile.dart` — logic on the SDK: `studioMint` (enrol + provision,
   no NFC write), `tapAndVerify` (computes the CMAC via `Sdm.computeSdmCmac`),
   `verifyScan`, and the real `mintArtwork` (writes the chip over NFC, EV2 flow).
-- Everything — identity, signing, SDM-CMAC, verify — comes from `dna424_client`.
-  The ArtTrust binding stays byte-identical to the Python backend and web portal.
+- Everything — identity, signing, SDM-CMAC, verify — comes from `veritag_sdk`.
+  The Veritag binding stays byte-identical to the Python backend and web portal.
 
 On a real phone, set the endpoint to your PC's `http://<LAN-IP>:8080` (the API
 must bind `0.0.0.0` — `docker compose up` already publishes it). See

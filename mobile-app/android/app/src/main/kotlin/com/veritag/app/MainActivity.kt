@@ -1,4 +1,4 @@
-package com.example.arttrust_mobile
+package com.veritag.app
 
 import android.content.Intent
 import android.nfc.NdefMessage
@@ -9,7 +9,7 @@ import io.flutter.plugin.common.MethodChannel
 
 /// Receives ArtTrust tags dispatched by the OS (the manifest routes our
 /// external-type NDEF record here — never to a browser: the record is data,
-/// not a URI) and hands the payload to Dart over the `arttrust/nfc` channel.
+/// not a URI) and hands the payload to Dart over the `veritag/nfc` channel.
 class MainActivity : FlutterActivity() {
     private var channel: MethodChannel? = null
     private var pendingPayload: String? = null
@@ -17,7 +17,7 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         pendingPayload = payloadFrom(intent) ?: pendingPayload
-        channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "arttrust/nfc").also {
+        channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "veritag/nfc").also {
             it.setMethodCallHandler { call, result ->
                 if (call.method == "takeLaunchPayload") {
                     result.success(pendingPayload)

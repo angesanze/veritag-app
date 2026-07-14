@@ -8,7 +8,7 @@
     <!-- usesCleartextTraffic: allow plain HTTP so the app can reach a local
          AttestCore (http://<LAN-IP>:8080) during testing. Production talks HTTPS. -->
     <application
-        android:label="ArtTrust"
+        android:label="Veritag"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">

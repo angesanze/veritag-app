@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
-  ArtTrustApi,
+  VeritagApi,
   type Artist,
   type ArtworkDetail,
   type CatalogueEntry,
@@ -11,8 +11,8 @@ import {
 } from "./portal.js";
 import { GeoSearch, MapPicker, TrailMap, type TrailStop } from "./map.js";
 
-const BASE_KEY = "arttrust.base";
-const TOKEN_KEY = "arttrust.token";
+const BASE_KEY = "veritag.base";
+const TOKEN_KEY = "veritag.token";
 // Baked at build time (Vite): cloud builds point at the deployed domain API.
 const DEFAULT_BASE = (import.meta.env.VITE_API_BASE as string | undefined) ?? "http://localhost:8090";
 
@@ -42,7 +42,7 @@ const showDates = (a?: string, b?: string) => [a, b].filter(Boolean).join(" – 
 
 // ============ AUTH ============
 function AuthScreen({ api, base, setBase, onAuthed }: {
-  api: ArtTrustApi; base: string; setBase: (s: string) => void; onAuthed: (token: string, c: Curator) => void;
+  api: VeritagApi; base: string; setBase: (s: string) => void; onAuthed: (token: string, c: Curator) => void;
 }) {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [username, setUsername] = useState("");
@@ -66,7 +66,7 @@ function AuthScreen({ api, base, setBase, onAuthed }: {
     <div className="auth">
       <div className="auth-brand">
         <div className="auth-brand-inner">
-          <div className="brand-mark"><div className="glyph">A</div><b>ArtTrust</b></div>
+          <div className="brand-mark"><div className="glyph">A</div><b>Veritag</b></div>
           <div className="brand-title">Authenticity,<br /><span className="accent">authored</span> by curators.</div>
           <p className="brand-tag">Vouch for the artists you trust, stage exhibitions on the map, and give every artwork a passport a visitor can read with a tap.</p>
           <div className="brand-points">
@@ -103,7 +103,7 @@ function AuthScreen({ api, base, setBase, onAuthed }: {
 }
 
 // ============ REQUESTS ============
-function RequestsView({ api, curatorId, onChange }: { api: ArtTrustApi; curatorId: string; onChange: () => void }) {
+function RequestsView({ api, curatorId, onChange }: { api: VeritagApi; curatorId: string; onChange: () => void }) {
   const [reqs, setReqs] = useState<VerificationReq[]>([]);
   const [codes, setCodes] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState("");
@@ -149,7 +149,7 @@ function RequestsView({ api, curatorId, onChange }: { api: ArtTrustApi; curatorI
 }
 
 // ============ ROSTER (filterable) ============
-function RosterView({ api, curatorId, onOpenArtwork }: { api: ArtTrustApi; curatorId: string; onOpenArtwork: (uid: string) => void }) {
+function RosterView({ api, curatorId, onOpenArtwork }: { api: VeritagApi; curatorId: string; onOpenArtwork: (uid: string) => void }) {
   const [roster, setRoster] = useState<Artist[]>([]);
   const [cat, setCat] = useState<CatalogueEntry[]>([]);
   const [q, setQ] = useState("");
@@ -213,7 +213,7 @@ function RosterView({ api, curatorId, onOpenArtwork }: { api: ArtTrustApi; curat
 
 // ============ ARTWORKS (catalogue + passport-style detail) ============
 function ArtworksView({ api, curatorId, openUid, setOpenUid }: {
-  api: ArtTrustApi; curatorId: string; openUid: string | null; setOpenUid: (u: string | null) => void;
+  api: VeritagApi; curatorId: string; openUid: string | null; setOpenUid: (u: string | null) => void;
 }) {
   const [cat, setCat] = useState<CatalogueEntry[]>([]);
   const [q, setQ] = useState("");
@@ -360,7 +360,7 @@ function WorkPicker({ cat, picked, onToggle, onCaption }: {
   );
 }
 
-function RoomsView({ api, curatorId }: { api: ArtTrustApi; curatorId: string }) {
+function RoomsView({ api, curatorId }: { api: VeritagApi; curatorId: string }) {
   const [rooms, setRooms] = useState<Exhibition[]>([]);
   const [cat, setCat] = useState<CatalogueEntry[]>([]);
   const [picked, setPicked] = useState<Record<string, string>>({});
@@ -557,7 +557,7 @@ const NAV: { key: Tab; ic: string; label: string }[] = [
   { key: "rooms", ic: "▦", label: "Exhibitions" },
 ];
 
-function Dashboard({ api, session, online, onLogout }: { api: ArtTrustApi; session: Curator; online: boolean | null; onLogout: () => void }) {
+function Dashboard({ api, session, online, onLogout }: { api: VeritagApi; session: Curator; online: boolean | null; onLogout: () => void }) {
   const [tab, setTab] = useState<Tab>("requests");
   const [pending, setPending] = useState(0);
   const [openUid, setOpenUid] = useState<string | null>(null);
@@ -579,7 +579,7 @@ function Dashboard({ api, session, online, onLogout }: { api: ArtTrustApi; sessi
   return (
     <div className="app">
       <aside className="sidebar">
-        <div className="side-brand"><div className="glyph">A</div><b>ArtTrust</b></div>
+        <div className="side-brand"><div className="glyph">A</div><b>Veritag</b></div>
         <div className="side-curator"><div className="avatar">{initials(session.name)}</div><div className="who"><b>{session.name}</b><span>curator</span></div></div>
         <nav className="nav">
           {NAV.map((n) => (
@@ -614,7 +614,7 @@ export function App() {
   const [online, setOnline] = useState<boolean | null>(null);
   const [restoring, setRestoring] = useState(true);
 
-  const api = useMemo(() => new ArtTrustApi(base, token ?? undefined), [base, token]);
+  const api = useMemo(() => new VeritagApi(base, token ?? undefined), [base, token]);
   useEffect(() => { localStorage.setItem(BASE_KEY, base); }, [base]);
 
   useEffect(() => {

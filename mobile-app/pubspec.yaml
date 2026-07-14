@@ -1,5 +1,5 @@
-name: arttrust_mobile
-description: Reference ArtTrust mobile app (Piano C) on the dna424_client SDK.
+name: veritag_app
+description: The Veritag mobile app — artist studio + visitor passport, on veritag_sdk.
 version: 0.1.0
 publish_to: none
 
@@ -10,8 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  dna424_client:
-    path: ../sdk/dart/dna424_client
+  veritag_sdk:
+    path: ../sdk/dart/veritag_sdk
   crypto: ^3.0.3
   convert: ^3.1.1
   http: ^1.1.0
