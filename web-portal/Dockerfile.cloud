@@ -1,0 +1,17 @@
+# Curator web portal — cloud image, built from THIS repo's layout (repo root as
+# context, with the SDK checked out at ./sdk per the repo convention):
+#   docker build -f web-portal/Dockerfile.cloud --build-arg VITE_API_BASE=<url> .
+FROM node:20-alpine AS build
+WORKDIR /repo
+
+COPY sdk/ts/dna424-client /repo/sdk/ts/dna424-client
+RUN cd sdk/ts/dna424-client && npm install && npm run build
+
+ARG VITE_API_BASE=""
+ENV VITE_API_BASE=$VITE_API_BASE
+COPY web-portal /repo/web-portal
+RUN cd web-portal && npm install && npm run build
+
+FROM nginx:alpine
+COPY --from=build /repo/web-portal/dist-web /usr/share/nginx/html
+EXPOSE 80

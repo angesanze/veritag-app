@@ -26,7 +26,9 @@ const _amber = Color(0xFFF4B740);
 const _red = Color(0xFFFF5C72);
 const _hair = Color(0x12FFFFFF);
 
-const _defaultBase = 'http://192.168.1.181:8090';
+// The cloud deployment (Cloud Run). For local dev, change it in Settings to
+// your machine's LAN IP, e.g. http://192.168.1.181:8090.
+const _defaultBase = 'https://veritag-api-484395315892.europe-west8.run.app';
 const _kArtistId = 'artist_id';
 const _kArtistName = 'artist_name';
 

@@ -80,6 +80,42 @@ jobs:
           name: veritag-apk
           path: mobile-app/build/app/outputs/flutter-apk/app-release.apk
 
+  deploy-web:
+    name: Deploy web portal to Cloud Run
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [web]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write   # Workload Identity Federation — no stored keys
+    env:
+      REGION: europe-west8
+      IMAGE: europe-west8-docker.pkg.dev/veritag-502321/veritag/web
+      API_BASE: https://veritag-api-484395315892.europe-west8.run.app
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout SDK into ./sdk
+        uses: actions/checkout@v4
+        with:
+          repository: angesanze/veritag-sdk
+          path: sdk
+          token: ${{ secrets.SDK_READ_TOKEN != '' && secrets.SDK_READ_TOKEN || github.token }}
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/484395315892/locations/global/workloadIdentityPools/github/providers/github-provider
+          service_account: veritag-deployer@veritag-502321.iam.gserviceaccount.com
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Build + push image
+        run: |
+          gcloud auth configure-docker europe-west8-docker.pkg.dev -q
+          docker build -f web-portal/Dockerfile.cloud --build-arg VITE_API_BASE=$API_BASE -t $IMAGE:${{ github.sha }} .
+          docker push $IMAGE:${{ github.sha }}
+      - name: Deploy
+        run: |
+          gcloud run deploy veritag-web --image=$IMAGE:${{ github.sha }} \
+            --region=$REGION --allow-unauthenticated --port=80 \
+            --memory=256Mi --max-instances=2 -q
+
   release:
     name: GitHub Release (on v* tag)
     if: startsWith(github.ref, 'refs/tags/v')

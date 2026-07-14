@@ -9,6 +9,9 @@ COPY sdk/ts/dna424-client /repo/sdk/ts/dna424-client
 RUN cd sdk/ts/dna424-client && npm install && npm run build
 
 # Build the portal's static bundle (Vite -> dist-web/, SDK inlined).
+# VITE_API_BASE bakes the domain-API base URL (cloud deploys pass the Cloud Run URL).
+ARG VITE_API_BASE=""
+ENV VITE_API_BASE=$VITE_API_BASE
 COPY consumers/arttrust/web-portal /repo/consumers/arttrust/web-portal
 RUN cd consumers/arttrust/web-portal && npm install && npm run build
 

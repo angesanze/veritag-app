@@ -171,10 +171,21 @@ class ArtTrustApi {
 
   Future<bool> health() async {
     try {
-      final r = await _http.get(Uri.parse('$_base/healthz')).timeout(const Duration(seconds: 3));
+      // /meta, not /healthz: Google's frontend swallows /healthz on *.run.app.
+      final r = await _http.get(Uri.parse('$_base/meta')).timeout(const Duration(seconds: 4));
       return r.statusCode == 200;
     } catch (_) {
       return false;
+    }
+  }
+
+  /// The AttestCore base URL this deployment talks to (null if unreachable).
+  Future<String?> attestUrl() async {
+    try {
+      final r = await _http.get(Uri.parse('$_base/meta')).timeout(const Duration(seconds: 5));
+      return (jsonDecode(r.body) as Map<String, dynamic>)['attest_url'] as String?;
+    } catch (_) {
+      return null;
     }
   }
 

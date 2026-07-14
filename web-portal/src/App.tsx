@@ -13,7 +13,8 @@ import { GeoSearch, MapPicker, TrailMap, type TrailStop } from "./map.js";
 
 const BASE_KEY = "arttrust.base";
 const TOKEN_KEY = "arttrust.token";
-const DEFAULT_BASE = "http://localhost:8090";
+// Baked at build time (Vite): cloud builds point at the deployed domain API.
+const DEFAULT_BASE = (import.meta.env.VITE_API_BASE as string | undefined) ?? "http://localhost:8090";
 
 const errMsg = (e: unknown) => (e instanceof Error ? e.message : String(e));
 const minsLeft = (expires: number) => Math.max(0, Math.round((expires * 1000 - Date.now()) / 60000));
