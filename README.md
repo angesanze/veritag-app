@@ -38,7 +38,7 @@ Backend (AttestCore + domain API): [`veritag-core`](https://github.com/angesanze
 - **web**: SDK build → typecheck → conformance test → Vite bundle (artifact `web-portal`)
 - **android**: analyze → test → `flutter build apk --release` (artifact `veritag-apk`)
 
-Push a `v*` tag → **GitHub Release** with the APK and the web bundle attached.
+The portal deploys to **https://veritag.web.app** (Firebase Hosting) on every push to main. Push a `v*` tag → **GitHub Release** with the APK and the web bundle attached.
 
 > If `veritag-sdk` is private, add a repo-read PAT as the `SDK_READ_TOKEN` secret
 > so CI can check it out; if it's public nothing is needed.
