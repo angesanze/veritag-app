@@ -1,5 +1,13 @@
 {
   "projects": {
     "default": "veritag-502321"
+  },
+  "targets": {
+    "veritag-502321": {
+      "hosting": {
+        "app": ["veritag"],
+        "site": ["veritag-art"]
+      }
+    }
   }
 }

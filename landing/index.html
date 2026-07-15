@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Veritag — L'autenticità dell'arte, firmata nel silicio</title>
+<meta name="description" content="Veritag lega ogni opera d'arte a un chip NTAG 424 DNA: firma crittografica dell'artista, garanzia del curatore, passaporto digitale leggibile con un tocco."/>
+<meta property="og:title" content="Veritag — L'autenticità dell'arte, firmata nel silicio"/>
+<meta property="og:description" content="Chip anti-clone, firma d'artista, spunta blu del curatore: il passaporto digitale di ogni opera."/>
+<style>
+  :root{
+    --bg:#08070d; --bg2:#0e0d16; --ink:#f3f1fb; --muted:#9c9ab6; --faint:#6a6783;
+    --violet:#9a82ff; --violet2:#7c5cff; --gold:#d8b46a; --blue:#3f84ff;
+    --green:#36d399; --hair:rgba(255,255,255,.09);
+    --serif:"Iowan Old Style",Palatino,"Palatino Linotype",Georgia,serif;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--sans);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(1200px 700px at 85% -10%,rgba(154,130,255,.16),transparent 60%),
+      radial-gradient(1000px 600px at -10% 30%,rgba(216,180,106,.08),transparent 55%),
+      linear-gradient(180deg,var(--bg2),var(--bg));
+    background-attachment:fixed;
+  }
+  .serif{font-family:var(--serif);letter-spacing:-.015em}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  a{color:inherit;text-decoration:none}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(8,7,13,.72);border-bottom:1px solid var(--hair)}
+  .nav-in{display:flex;align-items:center;gap:26px;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:1.15rem;font-weight:700}
+  .glyph{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:#08070d;font-weight:800;font-family:var(--serif);background:linear-gradient(140deg,var(--violet),var(--gold))}
+  .nav-links{display:flex;gap:22px;margin-left:auto;font-size:.9rem;color:var(--muted)}
+  .nav-links a:hover{color:var(--ink)}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:.92rem;padding:11px 20px;border-radius:12px;transition:transform .12s,box-shadow .2s}
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{color:#08070d;background:linear-gradient(135deg,#a78bff,var(--violet2));box-shadow:0 12px 30px -12px rgba(139,109,255,.85)}
+  .btn.primary:hover{box-shadow:0 16px 38px -12px rgba(139,109,255,1)}
+  .btn.ghost{border:1px solid var(--hair);background:rgba(255,255,255,.05)}
+  .btn.ghost:hover{background:rgba(255,255,255,.1)}
+  @media(max-width:720px){.nav-links{display:none}}
+
+  /* hero */
+  header{padding:110px 0 80px;text-align:center;position:relative;overflow:hidden}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.74rem;letter-spacing:.16em;color:var(--gold);border:1px solid rgba(216,180,106,.4);background:rgba(216,180,106,.08);border-radius:999px;padding:7px 16px;margin-bottom:28px}
+  h1{font-family:var(--serif);font-size:clamp(2.4rem,6vw,4.2rem);line-height:1.08;margin-bottom:22px}
+  h1 .accent{font-style:italic;color:var(--gold)}
+  .sub{color:var(--muted);font-size:1.13rem;line-height:1.65;max-width:44rem;margin:0 auto 38px}
+  .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .hero-note{margin-top:16px;color:var(--faint);font-size:.8rem}
+
+  /* passport mock */
+  .mock{max-width:400px;margin:70px auto 0;text-align:left;border:1px solid rgba(54,211,153,.35);border-radius:22px;padding:24px;background:linear-gradient(135deg,rgba(54,211,153,.12),transparent 70%);box-shadow:0 40px 80px -40px rgba(0,0,0,.9)}
+  .mock .row{display:flex;align-items:center;gap:12px}
+  .mock .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(54,211,153,.16);color:var(--green);font-size:22px}
+  .mock b{font-family:var(--serif);font-size:1.2rem}
+  .mock .d{color:var(--muted);font-size:.8rem}
+  .mock .art{font-family:var(--serif);font-size:1.3rem;margin-top:16px}
+  .mock .by{color:var(--muted);font-size:.85rem;display:flex;align-items:center;gap:6px;margin-top:3px}
+  .bc{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;background:linear-gradient(140deg,#58acff,#2f6bff);color:#fff;font-size:10px;font-weight:900}
+  .mock .checks{border-top:1px solid var(--hair);margin-top:14px;padding-top:6px}
+  .mock .ck{display:flex;align-items:center;gap:9px;font-size:.85rem;padding-top:9px}
+  .mock .ck em{margin-left:auto;color:var(--faint);font-size:.72rem;font-style:normal}
+  .ok{color:var(--green)}
+
+  /* sections */
+  section{padding:90px 0}
+  .sec-eyebrow{font-size:.72rem;letter-spacing:.18em;color:var(--gold);font-weight:700;margin-bottom:12px}
+  h2{font-family:var(--serif);font-size:clamp(1.8rem,3.6vw,2.6rem);margin-bottom:14px}
+  .lead{color:var(--muted);font-size:1.02rem;line-height:1.65;max-width:46rem}
+
+  .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px;margin-top:44px}
+  .card{border:1px solid var(--hair);border-radius:18px;padding:28px;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015))}
+  .card .ico{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;font-size:22px;margin-bottom:18px}
+  .card h3{font-family:var(--serif);font-size:1.25rem;margin-bottom:10px}
+  .card p{color:var(--muted);font-size:.93rem;line-height:1.6}
+  .i-violet{background:rgba(154,130,255,.14);color:var(--violet)}
+  .i-gold{background:rgba(216,180,106,.14);color:var(--gold)}
+  .i-blue{background:rgba(63,132,255,.14);color:#6ea4ff}
+  .i-green{background:rgba(54,211,153,.14);color:var(--green)}
+
+  /* steps */
+  .steps{margin-top:48px;display:grid;gap:0}
+  .step{display:grid;grid-template-columns:56px 1fr;gap:22px}
+  .rail{display:flex;flex-direction:column;align-items:center}
+  .num{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:1.1rem;color:#08070d;background:linear-gradient(140deg,var(--gold),#b98f3e);flex:none;box-shadow:0 0 0 6px rgba(216,180,106,.1)}
+  .line{width:2px;flex:1;background:var(--hair);margin:8px 0}
+  .step .body{padding-bottom:46px;max-width:40rem}
+  .step h3{font-family:var(--serif);font-size:1.3rem;margin-bottom:8px}
+  .step p{color:var(--muted);font-size:.95rem;line-height:1.65}
+  .step .who{display:inline-block;font-size:.7rem;letter-spacing:.1em;font-weight:700;border-radius:999px;padding:4px 12px;margin-bottom:10px}
+  .w-artist{color:var(--violet);background:rgba(154,130,255,.12);border:1px solid rgba(154,130,255,.3)}
+  .w-curator{color:#6ea4ff;background:rgba(63,132,255,.12);border:1px solid rgba(63,132,255,.3)}
+  .w-visitor{color:var(--gold);background:rgba(216,180,106,.12);border:1px solid rgba(216,180,106,.3)}
+
+  /* tech */
+  .tech{border:1px solid var(--hair);border-radius:22px;padding:44px;background:linear-gradient(160deg,rgba(21,19,31,.9),rgba(11,11,18,.9));margin-top:44px}
+  .tech-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:26px;margin-top:30px}
+  .tech-item b{display:block;font-size:.95rem;margin-bottom:6px}
+  .tech-item p{color:var(--muted);font-size:.85rem;line-height:1.55}
+  .tech-item code{color:var(--gold);font-size:.8rem}
+  .truths{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+  .truth{font-size:.8rem;font-weight:600;border-radius:999px;padding:8px 16px;border:1px solid rgba(54,211,153,.35);background:rgba(54,211,153,.08);color:var(--green)}
+
+  /* final cta */
+  .final{padding:110px 0;text-align:center}
+  .final h2{margin-bottom:16px}
+
+  footer{border-top:1px solid var(--hair);padding:38px 0;color:var(--faint);font-size:.8rem}
+  .foot-in{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .foot-in .spacer{flex:1}
+  footer a{color:var(--muted)} footer a:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap nav-in">
+  <a class="logo" href="#"><span class="glyph">V</span>Veritag</a>
+  <div class="nav-links">
+    <a href="#come">Come funziona</a>
+    <a href="#tecnologia">Tecnologia</a>
+    <a href="#perchi">Per chi</a>
+  </div>
+  <a class="btn primary" href="https://veritag.web.app">Apri la piattaforma</a>
+</div></nav>
+
+<header><div class="wrap">
+  <div class="eyebrow">◈ &nbsp;NTAG 424 DNA · CRITTOGRAFIA · PROVENIENZA</div>
+  <h1 class="serif">L'autenticità dell'arte,<br/><span class="accent">firmata</span> nel silicio.</h1>
+  <p class="sub">Veritag lega ogni opera a un chip anti-clone, alla firma crittografica del suo artista
+  e alla garanzia personale di un curatore. Chi incontra l'opera la tocca col telefono —
+  e ne legge il passaporto.</p>
+  <div class="cta">
+    <a class="btn primary" href="https://veritag.web.app">Piattaforma del curatore</a>
+    <a class="btn ghost" href="https://github.com/angesanze/veritag-app/releases/latest/download/app-release.apk">↓ Scarica l'app (Android)</a>
+  </div>
+  <div class="hero-note">L'app è per artisti e visitatori · nessuna registrazione per verificare</div>
+
+  <div class="mock" aria-hidden="true">
+    <div class="row"><div class="ic">✓</div><div><b>Authentic</b><div class="d">Genuine chip, fresh scan, signed by the artist.</div></div></div>
+    <div class="art">Composition VIII</div>
+    <div class="by">by Wassily Kandinsky <span class="bc">✓</span> <span style="color:#6ea4ff;font-weight:600">Galleria del Sole</span></div>
+    <div class="checks">
+      <div class="ck"><span class="ok">●</span> Chip autentico <em>CMAC verificata</em></div>
+      <div class="ck"><span class="ok">●</span> Scansione fresca <em>anti-replay</em></div>
+      <div class="ck"><span class="ok">●</span> Firma dell'artista <em>ECDSA valida</em></div>
+    </div>
+  </div>
+</div></header>
+
+<section id="fiducia"><div class="wrap">
+  <div class="sec-eyebrow">TRE LIVELLI DI FIDUCIA, INDIPENDENTI</div>
+  <h2 class="serif">Un falso deve battere tutti e tre.<br/>Nessuno ci è mai riuscito toccando un tag.</h2>
+  <div class="grid3">
+    <div class="card"><div class="ico i-violet">▣</div><h3>Il chip non si clona</h3>
+      <p>Dentro l'opera vive un NTAG 424 DNA: a ogni tocco genera una prova crittografica nuova (AES-CMAC con contatore).
+      Copiarne il contenuto non serve a nulla — la chiave non esce mai dal silicio, e una scansione registrata viene riconosciuta come replay.</p></div>
+    <div class="card"><div class="ico i-gold">✒</div><h3>L'artista firma davvero</h3>
+      <p>La chiave privata dell'artista nasce e resta nel suo telefono. Quando "minta" un'opera, firma il legame
+      opera–chip con ECDSA: nessuno — nemmeno Veritag — può firmare al posto suo.</p></div>
+    <div class="card"><div class="ico i-blue">✓</div><h3>Il curatore garantisce</h3>
+      <p>La spunta blu non è un algoritmo: è una persona. Il curatore verifica l'artista con un codice
+      scambiato di persona e ne risponde con il proprio nome. Fiducia sociale, sopra la matematica.</p></div>
+  </div>
+</div></section>
+
+<section id="come"><div class="wrap">
+  <div class="sec-eyebrow">COME FUNZIONA</div>
+  <h2 class="serif">Dalla firma al passaporto.</h2>
+  <div class="steps">
+    <div class="step"><div class="rail"><div class="num">1</div><div class="line"></div></div><div class="body">
+      <span class="who w-artist">ARTISTA</span>
+      <h3>Crea la sua identità, una volta sola</h3>
+      <p>Dall'app: una chiave ECDSA P-256 nasce nell'enclave sicura del telefono. Non è esportabile, non viaggia mai.
+      Da quel momento ogni opera che minta porta la sua firma.</p></div></div>
+    <div class="step"><div class="rail"><div class="num">2</div><div class="line"></div></div><div class="body">
+      <span class="who w-curator">CURATORE</span>
+      <h3>Concede la spunta blu, di persona</h3>
+      <p>L'artista mostra un codice a 6 cifre; il curatore lo digita nella piattaforma web.
+      Il codice scade in 10 minuti: la verifica prova un incontro reale, non un click.</p></div></div>
+    <div class="step"><div class="rail"><div class="num">3</div><div class="line"></div></div><div class="body">
+      <span class="who w-artist">ARTISTA</span>
+      <h3>Firma l'opera sul suo chip</h3>
+      <p>Titolo, foto, storia — poi un tocco sul tag NTAG 424 DNA. L'app lega crittograficamente
+      opera e chip. Il curatore la può esporre nelle sue mostre: ogni mostra, con luogo e data,
+      entra nella provenienza.</p></div></div>
+    <div class="step"><div class="rail"><div class="num">4</div></div><div class="body">
+      <span class="who w-visitor">VISITATORE</span>
+      <h3>Tocca e legge il passaporto</h3>
+      <p>Senza registrarsi: telefono sull'opera → verdetto di autenticità, foto e storia,
+      artista con la spunta blu, e il percorso espositivo su mappa. In un secondo.</p></div></div>
+  </div>
+</div></section>
+
+<section id="tecnologia"><div class="wrap">
+  <div class="sec-eyebrow">TECNOLOGIA</div>
+  <h2 class="serif">La sicurezza non dipende dai segreti.</h2>
+  <p class="lead">Il modello è pubblico e verificabile: la crittografia è validata byte-per-byte contro i vettori
+  ufficiali NXP (AN12196), e il verdetto non è mai un singolo "sì" — sono tre verità indipendenti che
+  cadono in modo controllato.</p>
+  <div class="tech">
+    <div class="tech-grid">
+      <div class="tech-item"><b>NTAG 424 DNA</b><p>Chip NXP con SDM: a ogni lettura specchia UID, contatore e una <code>AES-CMAC</code> fresca. La chiave vive solo nel silicio.</p></div>
+      <div class="tech-item"><b>Anti-replay atomico</b><p>Ogni contatore può vincere una sola volta (<code>CAS</code> su Postgres): una scansione registrata è riconosciuta all'istante.</p></div>
+      <div class="tech-item"><b>Firma d'artista</b><p><code>ECDSA P-256</code> su un binding opaco opera–chip. La chiave privata resta nel secure element del telefono.</p></div>
+      <div class="tech-item"><b>Chiavi in HSM</b><p>La master key deriva le chiavi dei chip dentro <code>Cloud KMS</code>: non esiste in nessun file, in nessun processo.</p></div>
+    </div>
+    <div class="truths">
+      <span class="truth">✓ chip_authentic</span>
+      <span class="truth">✓ not_replayed</span>
+      <span class="truth">✓ issuer_verified</span>
+      <span style="align-self:center;color:var(--faint);font-size:.8rem">— tre boolean indipendenti, mai un flag solo</span>
+    </div>
+  </div>
+</div></section>
+
+<section id="perchi"><div class="wrap">
+  <div class="sec-eyebrow">PER CHI</div>
+  <h2 class="serif">Tre ruoli, un'unica verità.</h2>
+  <div class="grid3">
+    <div class="card"><div class="ico i-violet">🎨</div><h3>Artisti</h3>
+      <p>Firmi le tue opere per sempre, con una chiave che solo tu possiedi. Foto, descrizione e video
+      viaggiano con l'opera. La spunta blu di un curatore dice al mondo che sei tu.</p></div>
+    <div class="card"><div class="ico i-blue">🏛</div><h3>Curatori e gallerie</h3>
+      <p>Verifichi i tuoi artisti di persona, componi mostre con luogo sulla mappa, e ogni opera
+      che esponi accumula provenienza verificabile. Il tuo nome è la garanzia.</p></div>
+    <div class="card"><div class="ico i-gold">👁</div><h3>Collezionisti e visitatori</h3>
+      <p>Nessun account, nessuna app da capire: avvicini il telefono e leggi tutto —
+      autenticità, storia, mostre. La fiducia diventa un gesto.</p></div>
+  </div>
+</div></section>
+
+<section class="final"><div class="wrap">
+  <div class="sec-eyebrow">INIZIA ORA</div>
+  <h2 class="serif">Ogni opera racconta la verità.</h2>
+  <p class="sub">La piattaforma del curatore è online. L'app fa il resto.</p>
+  <div class="cta">
+    <a class="btn primary" href="https://veritag.web.app">Apri la piattaforma</a>
+    <a class="btn ghost" href="https://github.com/angesanze/veritag-app/releases/latest/download/app-release.apk">↓ App Android (APK)</a>
+  </div>
+</div></section>
+
+<footer><div class="wrap foot-in">
+  <span class="logo" style="font-size:.95rem"><span class="glyph" style="width:26px;height:26px;font-size:.85rem">V</span>Veritag</span>
+  <span>· L'autenticità dell'arte, firmata nel silicio.</span>
+  <span class="spacer"></span>
+  <a href="https://github.com/angesanze/veritag-sdk">SDK</a>
+  <a href="https://github.com/angesanze/veritag-app">GitHub</a>
+</div></footer>
+
+</body>
+</html>
