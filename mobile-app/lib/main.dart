@@ -1275,6 +1275,9 @@ class _SettingsSheetState extends State<_SettingsSheet> {
   late ArtistProfile? _artist = widget.artist;
   NfcDiagnostics? _diag;
   bool _diagBusy = false;
+  bool _wipeBusy = false;
+  String? _wipe;
+  bool _wipeOk = true;
   // The sheet is a route of its own: the home page rebuilding never reaches it,
   // so it pings the endpoint being typed here instead of showing a stale flag.
   late bool? _online = widget.online;
@@ -1307,6 +1310,46 @@ class _SettingsSheetState extends State<_SettingsSheet> {
     setState(() { _diagBusy = true; _diag = null; });
     final d = await widget.provisioner.diagnose();
     if (mounted) setState(() { _diag = d; _diagBusy = false; });
+  }
+
+  /// Retire a tag: mirroring off, NDEF file zeroed. Meant for chips written in
+  /// an older format — a URL record that opens a browser, say — so they stop
+  /// carrying anything at all. Destructive, hence the confirmation.
+  Future<void> _confirmWipe() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF15141F),
+        title: Text('Erase a tag?', style: _serif(19)),
+        content: const Text(
+          'The next tag you tap is wiped: its record is zeroed and secure '
+          'mirroring is switched off. Any artwork already bound to it stops '
+          'resolving. The chip itself stays usable and can be signed again.',
+          style: TextStyle(color: _muted, fontSize: 13, height: 1.5),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel', style: TextStyle(color: _muted))),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Erase', style: TextStyle(color: _red, fontWeight: FontWeight.w700))),
+        ],
+      ),
+    );
+    if (ok != true) return;
+
+    setState(() { _wipeBusy = true; _wipe = 'Hold the tag against the phone…'; _wipeOk = true; });
+    try {
+      final uid = await widget.provisioner.withArtTag<String>(
+        (s) async {
+          await s.wipe(onStatus: (m) { if (mounted) setState(() => _wipe = m); });
+          return s.uid;
+        },
+        onStatus: (m) { if (mounted) setState(() => _wipe = m); },
+      );
+      if (mounted) setState(() { _wipe = 'Tag $uid erased — it now carries nothing.'; _wipeOk = true; });
+    } catch (e) {
+      if (mounted) setState(() { _wipe = _msg(e); _wipeOk = false; });
+    } finally {
+      if (mounted) setState(() => _wipeBusy = false);
+    }
   }
 
   Future<void> _confirmReset() async {
@@ -1347,6 +1390,13 @@ class _SettingsSheetState extends State<_SettingsSheet> {
         const SizedBox(height: 12),
         _QuietButton(label: '◌  Diagnose a tag', busy: _diagBusy, onTap: _runDiag),
         if (_diag != null) Padding(padding: const EdgeInsets.only(top: 14), child: _DiagCard(d: _diag!)),
+        const SizedBox(height: 10),
+        _QuietButton(label: '⌫  Erase a tag', busy: _wipeBusy, onTap: _confirmWipe),
+        if (_wipe != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Text(_wipe!, style: TextStyle(color: _wipeOk ? _green : _red, fontSize: 12.5, height: 1.5)),
+          ),
 
         if (a != null && widget.api != null) ...[
           const Padding(padding: EdgeInsets.symmetric(vertical: 22), child: Divider(color: _hair, height: 1)),
