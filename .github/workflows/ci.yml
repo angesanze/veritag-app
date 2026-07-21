@@ -89,7 +89,7 @@ jobs:
       contents: read
       id-token: write   # Workload Identity Federation — no stored keys
     env:
-      API_BASE: https://veritag-api-484395315892.europe-west8.run.app
+      API_BASE: https://api.veritag.art
     steps:
       - uses: actions/checkout@v4
       - name: Checkout SDK into ./sdk

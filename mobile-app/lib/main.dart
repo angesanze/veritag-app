@@ -26,9 +26,10 @@ const _amber = Color(0xFFF4B740);
 const _red = Color(0xFFFF5C72);
 const _hair = Color(0x12FFFFFF);
 
-// The cloud deployment (Cloud Run). For local dev, change it in Settings to
-// your machine's LAN IP, e.g. http://192.168.1.181:8090.
-const _defaultBase = 'https://veritag-api-484395315892.europe-west8.run.app';
+// The cloud deployment — a Hosting site in front of the Cloud Run service, so
+// the endpoint stays ours. For local dev, change it in Settings to your
+// machine's LAN IP, e.g. http://192.168.1.181:8090.
+const _defaultBase = 'https://api.veritag.art';
 const _kArtistId = 'artist_id';
 const _kArtistName = 'artist_name';
 const _kBase = 'api_base';
@@ -1381,7 +1382,7 @@ class _SettingsSheetState extends State<_SettingsSheet> {
           const Text('Resetting deletes your signing key from this device forever. To prevent accidents, you’ll be asked to type your artist name.', style: TextStyle(color: _faint, fontSize: 12, height: 1.5)),
         ] else ...[
           const SizedBox(height: 12),
-          const Text('On the phone, set the endpoint to your computer’s LAN IP (e.g. 192.168.1.181) so the device can reach the backend.', style: TextStyle(color: _faint, fontSize: 12, height: 1.5)),
+          const Text('The app talks to api.veritag.art. For local development, point the endpoint at your computer’s LAN IP instead, e.g. http://192.168.1.181:8090.', style: TextStyle(color: _faint, fontSize: 12, height: 1.5)),
         ],
       ]),
     );
