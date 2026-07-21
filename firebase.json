@@ -16,6 +16,13 @@
       "target": "site",
       "public": "landing",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+    },
+    {
+      "_comment": "api.veritag.art — Cloud Run has no domain mapping in europe-west8, so Hosting fronts the API. Everything but the static files here is proxied to the veritag-api service.",
+      "target": "api",
+      "public": "api-proxy",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "rewrites": [{ "source": "**", "run": { "serviceId": "veritag-api", "region": "europe-west8" } }]
     }
   ]
 }

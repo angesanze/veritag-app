@@ -6,7 +6,8 @@
     "veritag-502321": {
       "hosting": {
         "app": ["veritag"],
-        "site": ["veritag-art"]
+        "site": ["veritag-art"],
+        "api": ["veritag-api-edge"]
       }
     }
   }
