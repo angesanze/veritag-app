@@ -66,7 +66,7 @@ function AuthScreen({ api, base, setBase, onAuthed }: {
     <div className="auth">
       <div className="auth-brand">
         <div className="auth-brand-inner">
-          <div className="brand-mark"><div className="glyph">A</div><b>Veritag</b></div>
+          <div className="brand-mark"><img className="glyph" src="/mark.svg" alt="" /><b>Veritag</b></div>
           <div className="brand-title">Authenticity,<br /><span className="accent">authored</span> by curators.</div>
           <p className="brand-tag">Vouch for the artists you trust, stage exhibitions on the map, and give every artwork a passport a visitor can read with a tap.</p>
           <div className="brand-points">
@@ -579,7 +579,7 @@ function Dashboard({ api, session, online, onLogout }: { api: VeritagApi; sessio
   return (
     <div className="app">
       <aside className="sidebar">
-        <div className="side-brand"><div className="glyph">A</div><b>Veritag</b></div>
+        <div className="side-brand"><img className="glyph" src="/mark.svg" alt="" /><b>Veritag</b></div>
         <div className="side-curator"><div className="avatar">{initials(session.name)}</div><div className="who"><b>{session.name}</b><span>curator</span></div></div>
         <nav className="nav">
           {NAV.map((n) => (

@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api_client.dart';
 import 'binding.dart';
+import 'brand.dart';
 
 void main() => runApp(const VeritagApp());
 
@@ -351,12 +352,7 @@ class _HomePageState extends State<HomePage> {
   Widget _topBar() => Padding(
         padding: const EdgeInsets.only(top: 14),
         child: Row(children: [
-          Container(
-            width: 38, height: 38,
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), gradient: const LinearGradient(colors: [_violet, _gold])),
-            alignment: Alignment.center,
-            child: const Text('A', style: TextStyle(color: _bg, fontWeight: FontWeight.w800, fontSize: 20, fontFamily: 'serif')),
-          ),
+          const VeritagMark(size: 38),
           const SizedBox(width: 11),
           Text('Veritag', style: _serif(23)),
           const Spacer(),
