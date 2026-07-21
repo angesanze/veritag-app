@@ -145,12 +145,23 @@ class Passport {
   }
 }
 
+/// Make a typed-in endpoint usable: trim, drop trailing slashes, and supply the
+/// scheme when it's missing — without one `Uri.parse` yields a schemeless URI
+/// and every call throws, which reads on screen as "backend unreachable".
+/// A bare IP or a host:port is a dev box (http); anything else is the cloud.
+String normalizeBase(String raw) {
+  var b = raw.trim().replaceAll(RegExp(r'/+$'), '');
+  if (b.isEmpty || b.contains('://')) return b;
+  final lan = RegExp(r'^\d{1,3}(\.\d{1,3}){3}').hasMatch(b) || b.contains(':');
+  return '${lan ? 'http' : 'https'}://$b';
+}
+
 class VeritagApi {
   VeritagApi(this.baseUrl, {http.Client? client}) : _http = client ?? http.Client();
   final String baseUrl;
   final http.Client _http;
 
-  String get _base => baseUrl.replaceAll(RegExp(r'/+$'), '');
+  String get _base => normalizeBase(baseUrl);
 
   Future<dynamic> _json(http.Response r) async {
     if (r.statusCode >= 400) {
@@ -172,7 +183,8 @@ class VeritagApi {
   Future<bool> health() async {
     try {
       // /meta, not /healthz: Google's frontend swallows /healthz on *.run.app.
-      final r = await _http.get(Uri.parse('$_base/meta')).timeout(const Duration(seconds: 4));
+      // 9s, not 4: Cloud Run scales to zero, so the first ping pays a cold start.
+      final r = await _http.get(Uri.parse('$_base/meta')).timeout(const Duration(seconds: 9));
       return r.statusCode == 200;
     } catch (_) {
       return false;
@@ -182,7 +194,7 @@ class VeritagApi {
   /// The AttestCore base URL this deployment talks to (null if unreachable).
   Future<String?> attestUrl() async {
     try {
-      final r = await _http.get(Uri.parse('$_base/meta')).timeout(const Duration(seconds: 5));
+      final r = await _http.get(Uri.parse('$_base/meta')).timeout(const Duration(seconds: 9));
       return (jsonDecode(r.body) as Map<String, dynamic>)['attest_url'] as String?;
     } catch (_) {
       return null;

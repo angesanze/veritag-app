@@ -31,6 +31,7 @@ const _hair = Color(0x12FFFFFF);
 const _defaultBase = 'https://veritag-api-484395315892.europe-west8.run.app';
 const _kArtistId = 'artist_id';
 const _kArtistName = 'artist_name';
+const _kBase = 'api_base';
 
 /// Where an in-place NFC flow is: the scanner ring itself narrates the whole
 /// exchange — no sheet, no dialog.
@@ -113,9 +114,9 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _ping();
+    _loadBase();
     _loadArtist();
-    _timer = Timer.periodic(const Duration(seconds: 4), (_) => _ping());
+    _timer = Timer.periodic(const Duration(seconds: 5), (_) => _ping());
     _nfcIntents.setMethodCallHandler((call) async {
       if (call.method == 'tag') _passportFromPayload(call.arguments as String?);
     });
@@ -158,9 +159,37 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  bool _pinging = false;
+
   Future<void> _ping() async {
-    final ok = await _api().health();
-    if (mounted) setState(() => _online = ok);
+    if (_pinging) return; // a cold start can outlast the tick — don't stack pings
+    _pinging = true;
+    try {
+      final ok = await _api().health();
+      if (mounted) setState(() => _online = ok);
+    } finally {
+      _pinging = false;
+    }
+  }
+
+  /// The endpoint survives restarts: whatever was typed in Settings is what the
+  /// app comes back to (falling back to the cloud deployment).
+  Future<void> _loadBase() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getString(_kBase);
+      if (saved != null && saved.trim().isNotEmpty && mounted) setState(() => _base = saved);
+    } catch (_) {}
+    _ping();
+  }
+
+  Future<void> _setBase(String v) async {
+    setState(() { _base = v; _online = null; });
+    _ping();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_kBase, v);
+    } catch (_) {}
   }
 
   Future<void> _loadArtist() async {
@@ -278,7 +307,7 @@ class _HomePageState extends State<HomePage> {
         provisioner: _provisioner,
         api: _api,
         artist: _artist,
-        onChanged: (v) => setState(() => _base = v),
+        onChanged: _setBase,
         onArtistChanged: (p) { _persist(p); setState(() => _artist = p); },
         onReset: () { _resetIdentity(); Navigator.of(context).pop(); },
       ),
@@ -1249,15 +1278,33 @@ class _SettingsSheetState extends State<_SettingsSheet> {
   late ArtistProfile? _artist = widget.artist;
   NfcDiagnostics? _diag;
   bool _diagBusy = false;
+  // The sheet is a route of its own: the home page rebuilding never reaches it,
+  // so it pings the endpoint being typed here instead of showing a stale flag.
+  late bool? _online = widget.online;
+  Timer? _pingTimer;
+  bool _pinging = false;
 
   @override
   void initState() {
     super.initState();
     widget.provisioner.isAvailable().then((v) { if (mounted) setState(() => _nfc = v); });
+    _ping();
+    _pingTimer = Timer.periodic(const Duration(seconds: 5), (_) => _ping());
+  }
+
+  Future<void> _ping() async {
+    if (_pinging) return;
+    _pinging = true;
+    try {
+      final ok = await VeritagApi(_c.text).health();
+      if (mounted) setState(() => _online = ok);
+    } finally {
+      _pinging = false;
+    }
   }
 
   @override
-  void dispose() { _c.dispose(); super.dispose(); }
+  void dispose() { _pingTimer?.cancel(); _c.dispose(); super.dispose(); }
 
   Future<void> _runDiag() async {
     setState(() { _diagBusy = true; _diag = null; });
@@ -1288,9 +1335,10 @@ class _SettingsSheetState extends State<_SettingsSheet> {
 
         const _Label('Veritag endpoint'),
         const SizedBox(height: 8),
-        TextField(controller: _c, onChanged: widget.onChanged),
+        TextField(controller: _c, onChanged: (v) { widget.onChanged(v); setState(() => _online = null); _ping(); }),
         const SizedBox(height: 14),
-        _statusLine(widget.online == true ? _green : _red, widget.online == null ? 'checking…' : widget.online! ? 'Backend connected' : 'Backend unreachable — check the LAN IP'),
+        _statusLine(_online == null ? _faint : _online! ? _green : _red,
+            _online == null ? 'checking…' : _online! ? 'Backend connected' : 'Backend unreachable — check the endpoint'),
         const SizedBox(height: 9),
         _statusLine(_nfc == true ? _green : _amber, _nfc == null ? 'checking NFC…' : _nfc! ? 'NFC reader available · accepts only NTAG 424 DNA' : 'NFC unavailable on this device'),
 
